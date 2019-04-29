@@ -34,7 +34,7 @@ def test_linear_scheduler():
     prev_task = Task1(init_data_bundle=DataBundle(data_dict={"count": 0}))
     graph = ComputationalGraph()
     for _ in range(99):
-        current_task = Task2(stop_timeout_window=0.1)
+        current_task = Task2(stop_timeout_window=0.01)
         graph.add_edge(prev_task, current_task)
         prev_task = current_task
 
@@ -65,7 +65,7 @@ def test_multi_thread_scheduler():
     prev_task = Task1(init_data_bundle=DataBundle(data_dict={"count": 0}))
     graph = ComputationalGraph()
     for _ in range(99):
-        current_task = Task2(stop_timeout_window=0.1)
+        current_task = Task2(stop_timeout_window=0.01)
         graph.add_edge(prev_task, current_task)
         prev_task = current_task
 
