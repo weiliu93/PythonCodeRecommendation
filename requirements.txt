@@ -1,0 +1,2 @@
+black>=19.3b0
+structlog>=19.1.0

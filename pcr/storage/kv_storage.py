@@ -1,0 +1,3 @@
+class KVStorage(object):
+
+    pass
