@@ -2,9 +2,12 @@ from pcr.util.bytes_util import byte_array_to_integer
 from pcr.util.bytes_util import integer_to_byte_array
 
 import pickle
+import threading
 
 
 class AppendOnlyArrayStorage(object):
+    """append only array based in disk, thread safe"""
+
     def __init__(self, filepath, flush=False):
         self._filepath = filepath
         self._index_filepath = filepath + ".index"
@@ -19,24 +22,37 @@ class AppendOnlyArrayStorage(object):
         self._current_offset = self._file.tell()
         self._offsets = []
         self._load_index()
+        self._lock = threading.Lock()
 
     def append(self, obj):
-        byte_array = self._serialize(obj)
-        byte_array_length = len(byte_array)
-        # write to disk first
-        self._file.write(byte_array)
-        self._index_file.write(integer_to_byte_array(self._current_offset, 4))
-        # then update index in-memory
-        self._offsets.append(self._current_offset)
-        self._current_offset += byte_array_length
+        self._lock.acquire()
+        try:
+            byte_array = self._serialize(obj)
+            byte_array_length = len(byte_array)
+            # write to disk first
+            self._file.write(byte_array)
+            self._index_file.write(integer_to_byte_array(self._current_offset, 4))
+            # then update index in-memory
+            self._offsets.append(self._current_offset)
+            self._current_offset += byte_array_length
+        finally:
+            self._lock.release()
 
     def flush(self):
-        self._file.flush()
-        self._index_file.flush()
+        self._lock.acquire()
+        try:
+            self._file.flush()
+            self._index_file.flush()
+        finally:
+            self._lock.release()
 
     def close(self):
-        self._file.close()
-        self._index_file.close()
+        self._lock.acquire()
+        try:
+            self._file.close()
+            self._index_file.close()
+        finally:
+            self._lock.release()
 
     def __iter__(self):
         # flush data before iter
@@ -74,4 +90,3 @@ class AppendOnlyArrayStorage(object):
 
     def _deserialize(self, byte_array):
         return pickle.loads(byte_array)
-
