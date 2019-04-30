@@ -1,5 +1,4 @@
 class FeatureVector(object):
-
     def __init__(self, length):
         assert isinstance(length, int)
         assert length > 0
@@ -9,6 +8,14 @@ class FeatureVector(object):
     @property
     def length(self):
         return self._length
+
+    def __add__(self, other):
+        assert isinstance(other, FeatureVector)
+        return self.add(other)
+
+    def __and__(self, other):
+        assert isinstance(other, FeatureVector)
+        return self.intersect(other)
 
     def __iter__(self):
         for key, value in self._value_dict.items():
@@ -32,7 +39,13 @@ class FeatureVector(object):
         for key, value in self:
             result_list.append((key, value))
         result_list.sort()
-        return "(" + ", ".join(map(lambda tuple: "{}: {}".format(tuple[0], tuple[1]), result_list)) + ")"
+        return (
+            "("
+            + ", ".join(
+                map(lambda tuple: "{}: {}".format(tuple[0], tuple[1]), result_list)
+            )
+            + ")"
+        )
 
     def one_hot_vector(self):
         """convert current vector into one-hot vector"""
@@ -68,6 +81,16 @@ class FeatureVector(object):
             if intersection_value != 0:
                 intersection_vector[key] = intersection_value
         return intersection_vector
+
+    def add(self, another_vector):
+        assert isinstance(another_vector, FeatureVector)
+        assert self.length == another_vector.length
+        add_vector = FeatureVector(self.length)
+        for key, value in self:
+            add_vector[key] = add_vector[key] + value
+        for key, value in another_vector:
+            add_vector[key] = add_vector[key] + value
+        return add_vector
 
     def feature_vector_similarity(self, another_vector):
         s = self.sum()

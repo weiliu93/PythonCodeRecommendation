@@ -2,7 +2,6 @@ from pcr.common.feature_vector import FeatureVector
 
 
 class FeatureMatrix(object):
-
     def __init__(self, n, m):
         assert isinstance(n, int) and isinstance(m, int)
         assert n > 0 and m > 0

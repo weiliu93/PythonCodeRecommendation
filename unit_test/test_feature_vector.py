@@ -33,7 +33,7 @@ def test_vector_set_and_get():
         pass
 
     try:
-        vector[- 1] = 10
+        vector[-1] = 10
         assert False, "index could not be negative"
     except:
         pass
@@ -43,6 +43,7 @@ def test_vector_set_and_get():
         assert False, "index should be integer"
     except:
         pass
+
 
 def test_vector_one_hot():
     vector = FeatureVector(10)
@@ -58,6 +59,7 @@ def test_vector_one_hot():
             assert one_hot_vector[index] == 1
         else:
             assert one_hot_vector[index] == 0
+
 
 def test_vector_dot_product():
     vector1 = FeatureVector(10)
@@ -75,12 +77,14 @@ def test_vector_dot_product():
     result = vector1.dot_product(vector2)
     assert result == 37
 
+
 def test_vector_sum():
     vector = FeatureVector(10)
     vector[0] = 10
     vector[3] = 5
     vector[9] = 9
     assert vector.sum() == 24
+
 
 def test_vector_intersect():
     vector1, vector2 = FeatureVector(10), FeatureVector(10)
@@ -99,10 +103,29 @@ def test_vector_intersect():
     for index in filter(lambda index: index not in [0, 7], range(10)):
         assert vector[index] == 0
 
+
+def test_vector_add():
+    vector1, vector2 = FeatureVector(5), FeatureVector(5)
+    vector1[0] = 10
+    vector1[2] = 5
+    vector1[4] = 7
+    vector2[1] = 4
+    vector2[4] = 8
+    vector = vector1.add(vector2)
+    assert vector[0] == 10
+    assert vector[1] == 4
+    assert vector[2] == 5
+    assert vector[3] == 0
+    assert vector[4] == 15
+    assert vector.sum() == 34
+
+
 def test_vector_intersect_with_different_length():
     vector1, vector2 = FeatureVector(10), FeatureVector(14)
     try:
         vector1.intersect(vector2)
-        assert False, "Vector intersection between two vectors with different length is illegal"
+        assert (
+            False
+        ), "Vector intersection between two vectors with different length is illegal"
     except:
         pass

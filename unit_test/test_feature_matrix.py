@@ -29,13 +29,10 @@ def test_matrix_multiply_vector():
     assert result_vector[1] == 42
     assert result_vector[2] == 26
 
+
 def test_set_and_get():
     matrix = FeatureMatrix(3, 3)
-    matrix_array = [
-        [1, 0, 4],
-        [10, 3, 6],
-        [7, 9, 3]
-    ]
+    matrix_array = [[1, 0, 4], [10, 3, 6], [7, 9, 3]]
     for i in range(3):
         for j in range(3):
             matrix[i][j] = matrix_array[i][j]
