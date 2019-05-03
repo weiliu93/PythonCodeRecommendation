@@ -57,8 +57,16 @@ class AppendOnlyArrayStorage(object):
     def __iter__(self):
         # flush data before iter
         self.flush()
-        for index in range(len(self._offsets)):
-            yield self[index]
+        # sequence read without seeking
+        with open(self._filepath, "rb") as f:
+            for index in range(len(self._offsets)):
+                data_length = (
+                    self._offsets[index + 1] - self._offsets[index]
+                    if index + 1 < len(self._offsets)
+                    else self._current_offset - self._offsets[-1]
+                )
+                byte_array = f.read(data_length)
+                yield self._deserialize(byte_array)
 
     def __len__(self):
         return len(self._offsets)
@@ -66,11 +74,15 @@ class AppendOnlyArrayStorage(object):
     def __getitem__(self, item):
         assert isinstance(item, int)
         assert item >= 0 and item < len(self._offsets), "index out of bound"
+        # flush data first
+        self.flush()
+        # decide item start offset and data length
         start_offset = self._offsets[item]
         if item + 1 < len(self._offsets):
             data_length = self._offsets[item + 1] - start_offset
         else:
             data_length = self._current_offset - start_offset
+        # seek for read once
         with open(self._filepath, "rb") as f:
             f.seek(start_offset)
             byte_array = f.read(data_length)
