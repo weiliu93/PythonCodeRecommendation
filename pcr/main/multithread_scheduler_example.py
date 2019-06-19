@@ -24,20 +24,18 @@ class TerminationTask(Task):
         print(data_bundle["value"])
 
 
-# TODO fix bug in multi-thread for shen's scenario
-
 graph = ComputationalGraph()
 source = SourceTaskStub(init_data_bundle=DataBundle(data_dict={}))
 
 
 tasks = []
-for _ in range(2):
+for _ in range(10):
     tasks.append(IntermediateTask("name " + str(_)))
 termination_task = TerminationTask("termination")
 
-for i in range(2):
+for i in range(10):
     graph.add_edge(source, tasks[i])
-for i in range(2):
+for i in range(10):
     graph.add_edge(tasks[i], termination_task)
 
 

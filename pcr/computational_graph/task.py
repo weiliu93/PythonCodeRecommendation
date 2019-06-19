@@ -44,11 +44,9 @@ class Task(object):
                     data_list = self.__batch_pull(
                         blocked=True, timeout=self._stop_timeout_window
                     )
-                    for data_bundle, from_node in filter(
-                        lambda data_bundle, from_node: not data_bundle.is_stop_signal(),
-                        data_list,
-                    ):
-                        self._execute(data_bundle, from_node)
+                    for data_bundle, from_node in data_list:
+                        if not data_bundle.is_stop_signal():
+                            self._execute(data_bundle, from_node)
                     break
                 else:
                     # yield thread if no stop signal received
