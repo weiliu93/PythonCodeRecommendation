@@ -1,5 +1,6 @@
 from pcr.computational_graph.data_bundle import DataBundle
 from pcr.computational_graph.graph_node import GraphNode
+from pcr.computational_graph.task import FanoutStrategy, TaskEmitStrategy
 
 
 class SourceTask(object):
@@ -24,12 +25,19 @@ class SourceTask(object):
         # source task won't have more input data
         # so we can stop the entire pipeline
         self._emit(DataBundle.stop_signal())
+        self._stop()
 
     def _execute(self, data_bundle):
         """implement execution logic in derived class"""
         pass
 
-    def _emit(self, data_bundle):
+    def _stop(self): pass
+
+    def _emit(self, data_bundle, task_emit_strategy=None):
+        """Default emit strategy is fanout"""
         assert isinstance(data_bundle, DataBundle)
-        for out_edge in self._graph_node.out_edges:
-            out_edge.emit(data_bundle)
+        task_emit_strategy = task_emit_strategy or FanoutStrategy
+        assert issubclass(task_emit_strategy, TaskEmitStrategy)
+
+        strategy_instance = task_emit_strategy(self.graph_node, data_bundle)
+        strategy_instance.action()

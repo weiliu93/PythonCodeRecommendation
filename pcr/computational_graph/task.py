@@ -1,4 +1,5 @@
 import time
+import random
 
 from pcr.computational_graph.data_bundle import DataBundle
 from pcr.computational_graph.graph_node import GraphNode
@@ -54,15 +55,23 @@ class Task(object):
                     time.sleep(0)
         # stop following tasks
         self._emit(DataBundle.stop_signal())
+        # stop task
+        self._stop()
 
     def _execute(self, data_bundle, from_node):
         """implement execution logic in derived class"""
         pass
 
-    def _emit(self, data_bundle):
+    def _stop(self): pass
+
+    def _emit(self, data_bundle, task_emit_strategy=None):
+        """Default emit strategy is fanout"""
         assert isinstance(data_bundle, DataBundle)
-        for out_edge in self._graph_node.out_edges:
-            out_edge.emit(data_bundle)
+        task_emit_strategy = task_emit_strategy or FanoutStrategy
+        assert issubclass(task_emit_strategy, TaskEmitStrategy)
+
+        strategy_instance = task_emit_strategy(self.graph_node, data_bundle)
+        strategy_instance.action()
 
     def __batch_pull(self, blocked=False, timeout=None):
         pull_result = []
@@ -71,3 +80,47 @@ class Task(object):
             if data_bundle and from_node:
                 pull_result.append((data_bundle, from_node))
         return pull_result
+
+
+class TaskEmitStrategy(object):
+
+    def __init__(self, graph_node, data_bundle):
+        self._graph_node = graph_node
+        self._data_bundle = data_bundle
+
+    def action(self): pass
+
+class FanoutStrategy(TaskEmitStrategy):
+
+    def __init__(self, graph_node, data_bundle):
+        super().__init__(graph_node, data_bundle)
+
+    def action(self):
+        for out_edge in self._graph_node.out_edges:
+            out_edge.emit(self._data_bundle)
+
+class RandomDispatchStrategy(TaskEmitStrategy):
+
+    def __init__(self, graph_node, data_bundle):
+        super().__init__(graph_node, data_bundle)
+
+    def action(self):
+        """reservoir sampling"""
+        cnt, edge_chosen = 0 , None
+        for out_edge in self._graph_node.out_edges:
+            cnt += 1
+            if random.randint(0, cnt - 1) == 0:
+                edge_chosen = out_edge
+        edge_chosen.emit(self._data_bundle)
+
+class TargetDispatchStrategy(TaskEmitStrategy):
+
+    def __init__(self, graph_node, data_bundle, target_node):
+        super().__init__(graph_node, data_bundle)
+        self._target_node = target_node
+
+    def action(self):
+        for out_edge in self._graph_node.out_edges:
+            if out_edge.to_node == self._target_node:
+                out_edge.emit(self._data_bundle)
+                return
