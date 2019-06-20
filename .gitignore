@@ -4,3 +4,7 @@ __pycache__/
 *.pyc
 .DS_Store
 .vscode/
+corpus_dir/
+result.py
+corpus_storage
+corpus_storage.index

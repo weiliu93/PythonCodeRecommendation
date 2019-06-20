@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.
 
 from pcr.computational_graph.input.input_task import InputTask
 from pcr.computational_graph.ranking.coarse_ranker import CoarseRanker
+from pcr.computational_graph.ranking.fine_ranker import Prune
 from pcr.computational_graph.computational_graph import ComputationalGraph
 from pcr.computational_graph.linear_scheduler import LinearScheduler
 from pcr.computational_graph.data_bundle import DataBundle
@@ -21,9 +22,12 @@ class RecommendCorpus(object):
         graph = ComputationalGraph()
         query_task = InputTask(init_data_bundle=DataBundle(data_dict={"code": code}))
         rank_task = CoarseRanker()
+        prune_task = Prune()
         print_recommend_code_to_console = PrintRecommendCodeToConsoleTask()
 
         graph.add_edge(query_task, rank_task)
+        # graph.add_edge(rank_task, prune_task)
+        # graph.add_edge(prune_task, print_recommend_code_to_console)
         graph.add_edge(rank_task, print_recommend_code_to_console)
 
         scheduler = LinearScheduler(graph)
@@ -45,4 +49,13 @@ class RecommendCorpus(object):
         return prefix
 
 if __name__ == "__main__":
-    fire.Fire(RecommendCorpus)
+    # fire.Fire(RecommendCorpus)
+    rec = RecommendCorpus()
+#     code = '''
+# f = open(a, "w")
+# '''
+    code = '''
+class fdsafdsaf(streamingcommand):
+    pass
+'''
+    rec.recommend_code_piece(code)

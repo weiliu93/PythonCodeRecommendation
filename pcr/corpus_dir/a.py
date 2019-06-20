@@ -1,6 +1,2 @@
-class B(object):
-    def test(self):
-        pass
-
-    def hehe(self, a , b):
-        return a + b
+f = open("name.txt", "w")
+f.write()

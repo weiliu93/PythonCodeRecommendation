@@ -26,6 +26,14 @@ class CoarseRanker(Task):
         for corpus_code, corpus_features, filepath in self._corpus_reader:
             similarity = len(corpus_features & query_features)
             result_list.append(RankElement(similarity, corpus_code, filepath))
+        result_list.sort(key = lambda e: (e.similarity, e.corpus_filepath), reverse=True)
+        dedup_result_list = []
+        pre_filepath = None
+        for result in result_list:
+            if pre_filepath != result.corpus_filepath:
+                pre_filepath = result.corpus_filepath
+                dedup_result_list.append(result)
+        result_list = dedup_result_list
         result_list.sort(key = lambda e: (e.similarity, - abs(e.corpus_code_line_number - code_lines)), reverse=True)
         emit_data_bundle = DataBundle(data_dict=
                                  {"code": query_code,
