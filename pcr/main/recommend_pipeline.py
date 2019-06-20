@@ -34,5 +34,11 @@ class RecommendCorpus(object):
 
         pass
 
+    def recommend_based_on_prefix(self, prefix):
+        # TODO
+
+
+        pass
+
 if __name__ == "__main__":
     fire.Fire(RecommendCorpus)

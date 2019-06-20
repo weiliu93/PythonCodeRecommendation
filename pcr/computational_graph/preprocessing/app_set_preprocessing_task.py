@@ -1,6 +1,7 @@
 from pcr.computational_graph.source_task import SourceTask
 from pcr.computational_graph.data_bundle import DataBundle
 from pcr.logger.log_util import logger
+from pcr.util import string_util
 
 import os
 import tarfile
@@ -81,7 +82,7 @@ class AppSetPreprocessingTask(SourceTask):
                         # maintain a sliding window
                         if len(lines) > chunk_size:
                             lines.pop(0)
-                        code_piece = "\n".join(self._left_padding(lines))
+                        code_piece = "\n".join(string_util.left_padding_strings(lines))
                         # dedup code piece
                         if code_piece not in code_piece_set:
                             code_piece_set.add(code_piece)
@@ -90,7 +91,7 @@ class AppSetPreprocessingTask(SourceTask):
 
     def _filter(self, line):
         # ignore leading spaces
-        line = line[self._get_left_padding_spaces(line): ]
+        line = line[string_util.get_left_padding_spaces(line) : ]
         # empty line
         if line == "":
             return True
@@ -98,15 +99,3 @@ class AppSetPreprocessingTask(SourceTask):
         if line.startswith("#") or line.startswith("'''") or line.startswith('"""'):
             return True
         return False
-
-    def _left_padding(self, lines):
-        min_leading_spaces = 0
-        for line in lines:
-            min_leading_spaces = min(min_leading_spaces, self._get_left_padding_spaces(line))
-        return [line[min_leading_spaces : ] for line in lines]
-
-    def _get_left_padding_spaces(self, line):
-        index = 0
-        while index < len(line) and line[index] == " ":
-            index += 1
-        return index

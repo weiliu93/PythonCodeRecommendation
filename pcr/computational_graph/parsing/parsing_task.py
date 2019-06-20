@@ -22,6 +22,7 @@ class ParsingTask(Task):
                                            "filepath": filepath})
             self._emit(emit_data_bundle)
             logger.info("parsing code succeeded, filepath: {}".format(filepath))
-        except:
+        except Exception as e:
             # if parsing failed, ignore it
             logger.warn("parsing code pieces: {} failed".format(filepath))
+            raise e
