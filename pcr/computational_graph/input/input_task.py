@@ -8,8 +8,10 @@ class InputTask(SourceTask):
 
     def _execute(self, data_bundle):
         code = data_bundle["code"]
+        # filepath is not mandatory
+        filepath = data_bundle.data_dict.get("filepath", "N/A")
         try:
-            self._emit(DataBundle(data_dict={"code": code}))
+            self._emit(DataBundle(data_dict={"code": code, "filepath": filepath}))
             logger.debug("parse input {} succeeded".format(code))
         except:
             logger.error("parse input {} failed".format(code))

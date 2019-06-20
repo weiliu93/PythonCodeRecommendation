@@ -36,6 +36,11 @@ class RankElement(object):
         self._corpus_code = corpus_code
         self._corpus_filepath = corpus_filepath
         self._corpus_code_line_number = len(self._corpus_code.split("\n"))
+        self._root = Parser.spt_parse(self._corpus_code)
+
+    @property
+    def root(self):
+        return self._root
 
     @property
     def corpus_code_line_number(self):
