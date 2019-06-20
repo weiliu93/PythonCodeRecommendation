@@ -1,33 +1,11 @@
-from pcr.computational_graph.feature_extraction.core import FeatureExtraction
-from pcr.computational_graph.task import Task
-from pcr.computational_graph.parsing import Parser
-from pcr.computational_graph.data_bundle import DataBundle
-import multiprocessing
+from ..task import Task
+from ..feature_extraction import FeatureExtraction
 
 
 class Prune(Task):
     def _execute(self, data_bundle, from_node):
-        query = Parser.spt_parse(data_bundle['code'])
-        F1 = FeatureExtraction.extract(query)
-        result_list = []
-        for rankerElement in data_bundle['rank_list']:
-            rankerElement.F1 = F1
-            pruned_sim, pruned_tree = self._worker(rankerElement)
-            rankerElement.pruned_tree = pruned_tree
-            # from anytree.exporter import DotExporter
-            # DotExporter(pruned_tree).to_picture("./{}.png".format(int(pruned_sim * 1000)))
-            rankerElement.similarity = pruned_sim
-        # with multiprocessing.Pool() as pool:
-        #     result_list = pool.map(self._worker, data_bundle['rank_list'])
-        # for idx, rankerElement in enumerate(data_bundle['rank_list']):
-        #     rankerElement.pruned_tree = result_list[idx][1]
-        #     rankerElement.pruned_sim = result_list[idx][0]
-        data_bundle['rank_list'].sort(key = lambda e: e.similarity, reverse=True)
-        self._emit(data_bundle)
-
-    def _worker(self, RankerElement):
-        candidate_tree = RankerElement.root
-        F1 = RankerElement.F1
+        F1 = data_bundle['query_features']
+        candidate_tree = data_bundle['candidate_tree']
         # from anytree.exporter import DotExporter
         # DotExporter(candidate_tree).to_picture("./candidate_tree.png")
         candidate_tokens = list(filter(lambda leaf: leaf.is_token, candidate_tree.leaves))
@@ -51,8 +29,7 @@ class Prune(Task):
             # from anytree.exporter import DotExporter
             # DotExporter(settled_pruned_tree).to_picture("./big_tree.png")
             candidate_tokens.pop(reserved_tkn_idx)
-        return max_sim, settled_pruned_tree
-
+        return settled_pruned_tree
 
     def _roll_up(self, target_node, dup_node):
         target_node = target_node.parent
@@ -109,3 +86,5 @@ class Prune(Task):
 
     def _cal_sim(self, F1, F2):
         return len(F1.intersection(F2)) / len(F1)
+
+

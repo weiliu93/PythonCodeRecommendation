@@ -12,5 +12,6 @@ class ParentFeatureExtractor(FeatureExtractor):
             counter = 0
             while counter < self.DEEP and node.parent:
                 self._buffer.append(("#VAR", node.rank, node.parent.label))
+                self._buffer.append(("#" + node.label.lower(), node.rank, node.parent.label))
                 node = node.parent
                 counter += 1

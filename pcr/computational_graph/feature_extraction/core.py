@@ -31,7 +31,8 @@ class _TreeVisitor(ast.NodeVisitor):
         self._feature_extractors = [
             ParentFeatureExtractor(),
             TokenFeatureExtractor(),
-            VarUsageFeatureExtractor()]
+            VarUsageFeatureExtractor(),
+            ]
         for extor in self._feature_extractors:
             extor.setup(root)
 
