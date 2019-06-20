@@ -31,14 +31,12 @@ class RecommendCorpus(object):
     def recommend_based_on_previous_input(self, previous_code_lines):
         # TODO
 
-
-        pass
+        return previous_code_lines
 
     def recommend_based_on_prefix(self, prefix):
         # TODO
 
-
-        pass
+        return prefix
 
 if __name__ == "__main__":
     fire.Fire(RecommendCorpus)

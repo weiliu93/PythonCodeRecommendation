@@ -1,7 +1,9 @@
 def left_padding_strings(lines):
-    min_leading_spaces = 0
+    min_leading_spaces = 1000000000
     for line in lines:
-        min_leading_spaces = min(min_leading_spaces, get_left_padding_spaces(line))
+        line = line.replace("\t", "    ")
+        if line.strip() != "":
+            min_leading_spaces = min(min_leading_spaces, get_left_padding_spaces(line))
     return [line[min_leading_spaces:] for line in lines]
 
 
