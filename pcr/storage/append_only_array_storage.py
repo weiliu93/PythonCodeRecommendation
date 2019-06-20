@@ -3,6 +3,8 @@ from pcr.util.bytes_util import integer_to_byte_array
 
 import pickle
 import threading
+import os
+import mmap
 
 
 class AppendOnlyArrayStorage(object):
@@ -57,16 +59,18 @@ class AppendOnlyArrayStorage(object):
     def __iter__(self):
         # flush data before iter
         self.flush()
+        m = mmap.mmap(os.open(self._filepath, os.O_RDWR), 0)
         # sequence read without seeking
-        with open(self._filepath, "rb") as f:
-            for index in range(len(self._offsets)):
-                data_length = (
-                    self._offsets[index + 1] - self._offsets[index]
-                    if index + 1 < len(self._offsets)
-                    else self._current_offset - self._offsets[-1]
-                )
-                byte_array = f.read(data_length)
-                yield self._deserialize(byte_array)
+        # with open(self._filepath, "rb") as f:
+        for index in range(len(self._offsets)):
+            data_length = (
+                self._offsets[index + 1] - self._offsets[index]
+                if index + 1 < len(self._offsets)
+                else self._current_offset - self._offsets[-1]
+            )
+            byte_array = m.read(data_length)
+            yield self._deserialize(byte_array)
+        m.close()
 
     def __len__(self):
         return len(self._offsets)
@@ -89,13 +93,16 @@ class AppendOnlyArrayStorage(object):
             return self._deserialize(byte_array)
 
     def _load_index(self):
-        # load index file in-memory
-        with open(self._index_filepath, "rb") as f:
-            byte_array = f.read(4)
+        if os.stat(self._index_filepath).st_size > 0:
+            # load index file in-memory
+            m = mmap.mmap(os.open(self._index_filepath, os.O_RDWR), 0)
+            # with open(self._index_filepath, "rb") as f:
+            byte_array = m.read(4)
             while len(byte_array) == 4:
                 integer = byte_array_to_integer(byte_array)
                 self._offsets.append(integer)
-                byte_array = f.read(4)
+                byte_array = m.read(4)
+            m.close()
 
     def _serialize(self, obj):
         return pickle.dumps(obj)

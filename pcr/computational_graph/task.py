@@ -6,7 +6,7 @@ from .graph_node import GraphNode
 
 
 class Task(object):
-    def __init__(self, name=None, stop_timeout_window=2):
+    def __init__(self, name=None, stop_timeout_window=0.1):
         """
         :param name:                    customize task's name
         :param stop_timeout_window:     timeout window when stop signal received, time unit is second

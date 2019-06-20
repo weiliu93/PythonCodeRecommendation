@@ -6,7 +6,7 @@ import os
 
 class CorpusDumpTask(Task):
 
-    def __init__(self, name=None, stop_timeout_window=2, corpus_path=None):
+    def __init__(self, name=None, stop_timeout_window=0.1, corpus_path=None):
         super().__init__(name, stop_timeout_window)
         self._corpus_writer = CorpusWriter(corpus_path or os.path.join(os.path.dirname(__file__), os.path.pardir, os.path.pardir, "main", "corpus_storage"))
 
