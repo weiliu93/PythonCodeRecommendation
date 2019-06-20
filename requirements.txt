@@ -2,3 +2,4 @@ black>=19.3b0
 structlog>=19.1.0
 anytree==2.6.0
 graphviz==0.10.1
+fire==0.1.3

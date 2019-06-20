@@ -67,7 +67,8 @@ class AppSetPreprocessingTask(SourceTask):
         """
         split the python codes into several chunks with different threshold
         """
-        chunk_sizes = [2]
+        chunk_sizes = [1, 2, 5, 10]
+        code_piece_set = set()
         for chunk_size in chunk_sizes:
             lines = []
             with open(filepath, "r") as f:
@@ -81,8 +82,11 @@ class AppSetPreprocessingTask(SourceTask):
                         if len(lines) > chunk_size:
                             lines.pop(0)
                         code_piece = "\n".join(self._left_padding(lines))
-                        data_bundle = DataBundle(data_dict={"filepath": filepath, "code": code_piece})
-                        self._emit(data_bundle)
+                        # dedup code piece
+                        if code_piece not in code_piece_set:
+                            code_piece_set.add(code_piece)
+                            data_bundle = DataBundle(data_dict={"filepath": filepath, "code": code_piece})
+                            self._emit(data_bundle)
 
     def _filter(self, line):
         # ignore leading spaces
