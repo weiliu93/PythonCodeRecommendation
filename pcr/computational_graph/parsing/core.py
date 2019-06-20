@@ -143,7 +143,7 @@ class SimplifiedParsedTreeTransformer(ast.NodeTransformer):
         else:
             # node_type = type(node).__name__.lower()
             # label = node_type + "#" * len(node._fields)
-            print(type(node))
+            # print(type(node))
             return SptNode(label="unknown", lineno=node.lineno)
         return self._produce_sptnode_by_tranforming_fields(node, label, fields)
 
