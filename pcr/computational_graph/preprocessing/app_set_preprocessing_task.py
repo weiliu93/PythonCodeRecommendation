@@ -93,27 +93,33 @@ class AppSetPreprocessingTask(SourceTask):
         # Algorithm 2: check classes and functions
         text = open(filepath, "r").read()
         lines = text.split("\n")
-        ast_root = ast.parse(text)
-        class_linenos, function_linenos = [], []
-        for node in ast.walk(ast_root):
-            if isinstance(node, ast.ClassDef):
-                class_linenos.append(node.lineno - 1)
-            elif isinstance(node, ast.FunctionDef):
-                function_linenos.append(node.lineno - 1)
-        # collect classes and functions
-        for lineno in (class_linenos + function_linenos):
-            code_block = []
-            left_padding = string_util.get_left_padding_spaces(lines[lineno])
-            code_block.append(lines[lineno])
-            lineno += 1
-            while lineno < len(lines) and \
-                (string_util.is_empty_string(lines[lineno]) or
-                     (string_util.get_left_padding_spaces(lines[lineno]) > left_padding)):
+        try:
+            ast_root = ast.parse(text)
+            class_linenos, function_linenos = [], []
+            for node in ast.walk(ast_root):
+                if isinstance(node, ast.ClassDef):
+                    class_linenos.append(node.lineno - 1)
+                elif isinstance(node, ast.FunctionDef):
+                    function_linenos.append(node.lineno - 1)
+            # collect classes and functions
+            for lineno in (class_linenos + function_linenos):
+                code_block = []
+                left_padding = string_util.get_left_padding_spaces(lines[lineno])
                 code_block.append(lines[lineno])
                 lineno += 1
-            code_piece = "\n".join(string_util.left_padding_strings(code_block))
-            data_bundle = DataBundle(data_dict={"filepath": filepath, "code": code_piece})
-            self._emit(data_bundle)
+                while lineno < len(lines) and \
+                    (string_util.is_empty_string(lines[lineno]) or
+                         (string_util.get_left_padding_spaces(lines[lineno]) > left_padding)):
+                    if not string_util.is_empty_string(lines[lineno]):
+                        code_block.append(lines[lineno])
+                    lineno += 1
+                code_piece = "\n".join(string_util.left_padding_strings(code_block))
+                # dedup code piece
+                if code_piece not in code_piece_set:
+                    data_bundle = DataBundle(data_dict={"filepath": filepath, "code": code_piece})
+                    self._emit(data_bundle)
+        except:
+            logger.warn("handle python file: {} failed".format(filepath))
 
     def _filter(self, line):
         # ignore leading spaces

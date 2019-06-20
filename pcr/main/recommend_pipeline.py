@@ -9,6 +9,7 @@ from pcr.computational_graph.computational_graph import ComputationalGraph
 from pcr.computational_graph.linear_scheduler import LinearScheduler
 from pcr.computational_graph.data_bundle import DataBundle
 from pcr.computational_graph.output.print_recommend_code_to_console import PrintRecommendCodeToConsoleTask
+from pcr.computational_graph.ranking.index_ranker import IndexRanker
 
 
 import fire
@@ -28,10 +29,15 @@ class RecommendCorpus(object):
         scheduler = LinearScheduler(graph)
         scheduler.schedule()
 
-    def recommend_based_on_previous_input(self, previous_code_lines):
-        # TODO
+    def recommend_based_on_previous_input(self, previous_code):
+        graph = ComputationalGraph()
 
-        return previous_code_lines
+        query_task = InputTask(init_data_bundle=DataBundle(data_dict={"code": previous_code}))
+        index_ranker = IndexRanker()
+        graph.add_edge(query_task, index_ranker)
+
+        scheduler = LinearScheduler(graph)
+        scheduler.schedule()
 
     def recommend_based_on_prefix(self, prefix):
         # TODO
