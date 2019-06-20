@@ -1,8 +1,8 @@
 import time
 import random
 
-from pcr.computational_graph.data_bundle import DataBundle
-from pcr.computational_graph.graph_node import GraphNode
+from .data_bundle import DataBundle
+from .graph_node import GraphNode
 
 
 class Task(object):
