@@ -22,7 +22,7 @@ class VarUsageFeatureExtractor(FeatureExtractor):
             self._buffer.append((predecessor_ctx, successor_ctx))
 
     def _get_context(self, leaf_idx):
-        if leaf_idx < 0 or leaf_idx >= len(self._leaves):
+        if not leaf_idx or leaf_idx < 0 or leaf_idx >= len(self._leaves):
             return None
         leaf = self._leaves[leaf_idx]
         return (leaf.rank, leaf.parent.label)

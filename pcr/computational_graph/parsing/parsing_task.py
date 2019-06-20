@@ -24,5 +24,5 @@ class ParsingTask(Task):
             logger.info("parsing code succeeded, filepath: {}".format(filepath))
         except Exception as e:
             # if parsing failed, ignore it
-            logger.warn("parsing code pieces: {} failed".format(filepath))
-            raise e
+            logger.warn("parsing code pieces failed, filepath: {}".format(filepath))
+            # raise e

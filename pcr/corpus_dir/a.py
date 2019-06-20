@@ -1,5 +1,6 @@
-if func() == 20:
-    x()
+class B(object):
+    def test(self):
+        pass
 
-import a
-b.func()
+    def hehe(self, a , b):
+        return a + b

@@ -24,7 +24,7 @@ class UpdateCorpus(object):
         app_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, "corpus_dir"))
         graph = ComputationalGraph()
 
-        app_set_task = AppSetPreprocessingTask(init_data_bundle=DataBundle(data_dict={"corpus_dir": app_dir}))
+        app_set_task = AppSetPreprocessingTask(init_data_bundle=DataBundle(data_dict={"work_dir": app_dir}))
         parsing_task = ParsingTask()
         corpus_dump_task = CorpusDumpTask()
 

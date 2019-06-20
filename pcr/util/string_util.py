@@ -12,3 +12,7 @@ def get_left_padding_spaces(line):
     while index < len(line) and line[index] == " ":
         index += 1
     return index
+
+
+def is_empty_string(line):
+    return line.strip() == ""
