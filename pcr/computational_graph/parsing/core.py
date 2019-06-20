@@ -5,9 +5,9 @@ import os
 import re
 
 
-def fetch_attr(name):
+def fetch_attr(name, formatter="{}"):
     def ga(obj=None, name=None):
-        return str(getattr(obj, name))
+        return formatter.format(str(getattr(obj, name)))
     return functools.partial(ga, name=name)
     
 
@@ -52,7 +52,7 @@ SPT_NODE = {
 TOKEN_NODE = {
     ast.Bytes: fetch_attr('s'),
     ast.Name: fetch_attr('id'),
-    ast.Str: fetch_attr('s'),
+    ast.Str: fetch_attr('s', '"{}"'),
     ast.Num: fetch_attr('n'),
     ast.NameConstant: fetch_attr('value'),
     ast.arg: fetch_attr('arg'),
@@ -143,7 +143,7 @@ class SimplifiedParsedTreeTransformer(ast.NodeTransformer):
         else:
             # node_type = type(node).__name__.lower()
             # label = node_type + "#" * len(node._fields)
-            print(type(node))
+            # print(type(node))
             return SptNode(label="unknown", lineno=node.lineno)
         return self._produce_sptnode_by_tranforming_fields(node, label, fields)
 
@@ -309,10 +309,24 @@ class SptNode(anytree.NodeMixin):
         self.parent = node
         self.rank = len(node.children)
 
+    def set_children(self, children):
+        for rank, child in enumerate(children):
+            child.rank = rank + 1
+        self.children = children
+
     def update_label(self, label):
         self._label = label
         lineno = getattr(self, "lineno", "")
         self.name = '{}\nline: {}\n{}'.format(label, lineno, str(id(self))) # used by anytree
+
+    def copy(self):
+        node = SptNode(None, label=self.label, name=self.name)
+        if hasattr(self, 'copy_from'):
+            node.copy_from = self.copy_from
+        else:
+            node.copy_from = id(self)
+        node.name = self.name
+        return node
 
 
 class TokenNode(SptNode):
@@ -325,6 +339,15 @@ class TokenNode(SptNode):
         self._label = label
         lineno = getattr(self, "lineno", "")
         self.name = '{}\nline: {}\n{}'.format("*|" + label + "|*", lineno, str(id(self))) # used by anytree
+
+    def copy(self):
+        node = TokenNode(None, label=self.label, name=self.name, is_token=self.is_token)
+        if hasattr(self, 'copy_from'):
+            node.copy_from = self.copy_from
+        else:
+            node.copy_from = id(self)
+        node.name = self.name
+        return node
 
 
 class Parser(object):

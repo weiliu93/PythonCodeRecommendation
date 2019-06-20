@@ -9,4 +9,5 @@ class TokenFeatureExtractor(FeatureExtractor):
 
     def register_action(self, node):
         if node.is_token and node.label not in FeatureExtractor.KEYWORDS:
-            self._buffer.append(node.label)
+            token_name = node.label.lower()
+            self._buffer.append(token_name)

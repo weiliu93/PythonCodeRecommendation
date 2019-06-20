@@ -3,3 +3,7 @@ if func() == 20:
 
 import a
 b.func()
+
+
+import abc
+abc.haha()
